@@ -41,6 +41,10 @@ fun1alt <- function(n = 100, k = 4, lambda = 4) {
 Show that `fun1alt` generates a matrix with the same dimensions as `fun1` and that the values inside the two matrices follow similar distributions. Then check the speed of the two functions with the following code:
 
 ```{r}
+
+result_fun1 <- fun1()
+result_fun1alt <- fun1alt()
+
 # Benchmarking
 microbenchmark::microbenchmark(
   fun1(),
@@ -63,7 +67,7 @@ fun2 <- function(x) {
 }
 
 fun2alt <- function(x) {
-  colMax <- apply(x, 2, max)
+  colMax <- x[cbind(1:nrow(x), max.col(x))]
   return(colMax)
 }
 ```
@@ -71,6 +75,10 @@ fun2alt <- function(x) {
 Show that both functions return the same output for a given input matrix, `x`. Then check the speed of the two functions.
 
 ```{r}
+
+result_fun2 <- fun2(x)
+result_fun2alt <- fun2alt(x)
+
 microbenchmark::microbenchmark(
   fun2(x),
   fun2alt(x)
@@ -90,9 +98,9 @@ my_boot <- function(dat, stat, R, ncpus = 1L) {
   
   # THIS FUNCTION NEEDS TO BE PARALELLIZED
   # EDIT THIS CODE:
-  ans <- lapply(seq_len(R), function(i) {
-    stat(dat[idx[,i], , drop=FALSE])
-  })
+ ans <- mclapply(seq_len(R), function(i) {
+    stat(dat[idx[, i], , drop = FALSE])
+  }, mc.cores = 4)
   
   # Converting the list into a matrix
   ans <- do.call(rbind, ans)
